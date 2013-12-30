@@ -59,7 +59,7 @@ class extendedIterableUnit extends SpecificationWithJUnit  with IterableData wit
     }
   }
   import org.scalacheck.Gen
-  import scala.Math.min
+  import scala.math.min
   val sets = for {
         size1   <- Gen.choose(1, 3)
         set1    <- Gen.listOf(size1, Gen.oneOf("Art", "Bill", "Chris"))

@@ -85,12 +85,22 @@ object specificationWithChangedConfiguration extends org.spex.Specification {
     "be incremented by the first example" in { i must_== 1 }
   }
 }
+
+trait Foo {
+  def bar(b: Boolean = false): Map[String, String]
+}
+
 object specificationWithMockito extends org.spex.Specification {
   var l = mock[java.util.List[String]]
+  val mFoo = mock[Foo]
   "When using the Mockito trait" should {
     "mocks should be setup ok" in { 
       l.get(0) returns "hello"
       l.get(0) must_== "hello"
+    }
+    "provide a default for trait method" in {
+      mFoo.bar(any) returns Map.empty
+      mFoo.bar() must_== Map.empty
     }
   }
 }

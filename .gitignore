@@ -1,4 +1,5 @@
 .cache
+.sbtlib
 .history
 .target/
 pgp.sbt

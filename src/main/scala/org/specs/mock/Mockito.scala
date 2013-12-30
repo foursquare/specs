@@ -31,6 +31,7 @@ import org.mockito.stubbing.{ OngoingStubbing, Stubber }
 import org.specs.matcher._
 import org.specs.matcher.MatcherUtils._
 import org.specs._
+import scala.reflect.ClassTag
 
 /**
  * The Mockito trait can be mixed with Specifications to provide mocking capabilities using the Mockito library.
@@ -392,7 +393,7 @@ trait MockitoFunctions extends TheMockitoMocker {
  * Type-inference friendly Mockito matcher for 'any'
  */
 trait MockitoMatchers {
-  def any[T](implicit m: scala.reflect.ClassManifest[T]): T = org.mockito.Matchers.isA(m.erasure).asInstanceOf[T]
+  def any[T : ClassTag]: T = org.mockito.Matchers.any(implicitly[ClassTag[T]].runtimeClass).asInstanceOf[T]
 }
 /** delegate to Mockito static methods with appropriate type inference. */
 trait TheMockitoMocker {

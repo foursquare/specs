@@ -22,6 +22,8 @@ import org.specs.runner._
 import org.specs.util.Property
 
 class snippetSpec extends SpecificationWithJUnit with Snippets {
+  override def interpret(s: String): String = s
+
   "The Snippets trait" should allow {
     val it = Property(Snippet())
     "a property to store a prelude current snippet" in {

@@ -88,8 +88,8 @@ class reporterSpecification extends TestSpecs {
     }
     "display nested examples in the right order" in {
       specWithOneExampleAndTwoNestedExamples verifies(messages =>
-            messages.findIndexOf(matches("ex 1.1")) ==
-            messages.findIndexOf(matches("ex 1.2")) - 1)
+            messages.indexWhere(matches("ex 1.1")) ==
+            messages.indexWhere(matches("ex 1.2")) - 1)
     }
     "report the elapsed time" in {
       specWithOneExample(that.isOk) mustContainMatch "Finished in"
