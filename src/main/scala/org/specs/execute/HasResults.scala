@@ -70,7 +70,7 @@ trait HasResults {
   /** copy the results of another HasResult object */
   def copyResults(other: HasResults): this.type = this
 }
-object Status extends Enumeration("success", "failure", "error", "skipped", "info") {
+object Status extends Enumeration() {
   type Status = Value
   val Success, Failure, Error, Skipped, Info = Value
 }
