@@ -25,7 +25,6 @@ object runnerSpecifications extends Specification {
         new htmlRunnerSpec,
         new junitTestSuiteSpec,
         new notifierSpec,
-        new scalaTestSpec,
         new specsFilterSpec,
         new specsFinderSpec,
         new specsRunnerSpec,

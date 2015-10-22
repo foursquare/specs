@@ -33,8 +33,7 @@ class reporterPlanSpec extends Specification with Sugar {
   }
   include(ReporterPlan("console reporter", consoleReporter), 
           ReporterPlan("xml reporter", xmlReporter),
-          ReporterPlan("junit reporter", junitReporter),
-          ReporterPlan("ScalaTest reporter", scalaTestReporter))
+          ReporterPlan("junit reporter", junitReporter))
   
   case class ReporterPlan(n: String, reporter: {def plan: String; def expectations: String}) extends Specification(n) with Sugar {
     "A "+n+" with the -plan option, when reporting the specification" should {
@@ -64,7 +63,7 @@ class reporterPlanSpec extends Specification with Sugar {
       
     }
   } 
-  class TestSpecification extends org.specs.Specification with MockOutput with ScalaTest {
+  class TestSpecification extends org.specs.Specification with MockOutput {
     def help = displayHelp
   }
   object consoleReporter {
@@ -103,19 +102,6 @@ class reporterPlanSpec extends Specification with Sugar {
     def expectations: String = "[1-9] expectation"
   }
 
-  object scalaTestReporter {
-    class MockReporter extends org.scalatest.Reporter {
-      var messages = ""
-      def apply(e: org.scalatest.events.Event) = messages += e.toString + "\n"
-    } 
-    var reporter = new MockReporter
-    var stopper = new org.scalatest.Stopper {}
-    def plan: String = {
-      s.run(None, reporter, new org.scalatest.Stopper {}, org.scalatest.Filter(), Map("plan" -> "true"), None, new org.scalatest.Tracker)
-      reporter.messages
-    }
-    def expectations: String = "[1-9] expectation"
-  }
   def help = {
     s.help
     s.messages.toList

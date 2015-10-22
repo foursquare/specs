@@ -31,7 +31,7 @@ class patternMatchersUnit extends MatchersSpecification {
     }
     "not evaluate the expressions twice" in {
       val anyValue: Any = 1
-      beLike { (s:Any) => s match { case _ => ok } } must evalOnce(exp(anyValue))
+      beLike[Any] { (s:Any) => s match { case _ => ok } } must evalOnce(exp(anyValue))
     }
   }
   "A 'beSome' option matcher" should {

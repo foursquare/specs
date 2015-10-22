@@ -42,11 +42,3 @@ object runners {
   // 9. run all specifications found on a given path as an xml + html file + in the console
   object runner9 extends Runner(SpecsFinder("src/test", ".*Spec.*"), new XmlRunner :: new HtmlRunner) with Console with JUnit
 }
-class spec10 extends Specification with ScalaTest {
-  1 must_== 1
-  2 must_== 2
-}
-class spec11Test extends SpecificationWithJUnit with ScalaTest {
-  1 must_== 1
-  2 must_== 2
-}
