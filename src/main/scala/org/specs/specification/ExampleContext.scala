@@ -101,7 +101,7 @@ trait ExampleContext extends ExampleLifeCycle {
     if (lastNested == Some(ex))
       executeActions(Some(() => { lastActions.map(_.apply) }), "After system:\n")
   }
-  private def lastNested: Option[ExampleContext] = {
+  protected def lastNested: Option[ExampleContext] = {
     exampleList.lastOption.flatMap(_.lastNested).orElse(Some(this))
   }
   /**
