@@ -18,7 +18,7 @@
  */
 package org.specs.samples
 import org.specs.runner._
-import org.scalacheck.Commands
+import org.scalacheck.commands.Commands
 import org.specs.util._
 import org.specs._
 

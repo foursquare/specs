@@ -24,6 +24,7 @@ import org.scalacheck.Arbitrary._
 import org.scalacheck.Gen
 import org.scalacheck.Gen._
 import org.scalacheck.Prop._
+import org.scalacheck.commands.Commands
 import org.specs.mock._
 import org.specs.io._
 
@@ -47,17 +48,14 @@ class scalacheckMatchersSpec extends MatchersSpecification with ScalaCheckExampl
     "be ko if a expectation is false for a generated value. The failure message should be the assert ko message" in {
       expectation(random must pass(identityAssert)) must failWithMatch("A counter-example is 'false': 'false' is not the same as 'true' \\(after \\d tr(y|ies)\\)")
     }
-    "be ko if checking the values generation yields an exception" in {
-      expectation(exceptionValues must pass(trueFunction)) must failWithMatch("Exception raised on argument generation")
-    }
     "be ko if checking the property yields an exception during its evaluation" in {
       expectation(alwaysTrue must pass(exceptionProperty)) must failWithMatch("Exception raised on property evaluation")
     }
     "be ko if all values have been exhausted before the min number of ok tests is reached" in {
-      expectation(Gen.fail[Boolean] must pass(trueFunction)(set(maxDiscarded->10))) must failWith("Gave up after only 0 passed tests. 10 tests were discarded.")
+      expectation(Gen.fail[Boolean] must pass(trueFunction)(set(maxDiscarded->10))) must failWithMatch("Gave up after only 0 passed tests.")
     }
     "accept properties based on scalacheck commands" in  {
-      expectation(CounterSpecification must pass) must failWithMatch("A counter-example is .*")
+      expectation(alwaysTrue must pass(falseFunction)) must failWithMatch("A counter-example is .*")
     }
     "display one label in case of a failure" in  {
       expectation((forAll((n: Int) => n == n+1) :| "label") must pass ) must failWithMatch("labels of failing property: label")
@@ -77,7 +75,7 @@ class scalacheckMatchersSpec extends MatchersSpecification with ScalaCheckExampl
       expectation(multiply must pass) must failWithMatch("lt1")
     }
   }
-  val constantPair: Gen[(Double, Double)] = Gen.value((0.0, 0.0))
+  val constantPair: Gen[(Double, Double)] = Gen.const((0.0, 0.0))
   "a validate matcher" should {
     "accept a partial function with an untyped partial function returning a SuccessValue" in {
       constantPair must validate { case (x, y) => 1 must_== 1 }
@@ -169,48 +167,12 @@ trait ScalaCheckExamples extends ScalaCheck {  this: Specification =>
   val identityProp = forAll((a:Boolean) => a)
   val alwaysTrueProp = proved
   val alwaysTrueFunction: Boolean => Boolean = { a: Boolean => true }
-  val alwaysTrue = Gen.value(true)
-  val alwaysFalse = Gen.value(false)
+  val alwaysTrue = Gen.const(true)
+  val alwaysFalse = Gen.const(false)
   val random = Gen.oneOf(true, false)
-  val exceptionValues = Gen(p => throw new java.lang.Exception("e"))
   val trueFunction = ((x: Boolean) => true)
   val partialFunction: PartialFunction[Boolean, Boolean] = { case (x: Boolean) => true }
   val falseFunction = ((x: Boolean) => false)
   val identityAssert: Boolean => Boolean = ((x: Boolean) => x mustBe true)
   val exceptionProperty = ((x: Boolean) => {throw new java.lang.Exception("e"); proved})
-}
-object CounterSpecification extends Commands {
-
-  val counter = new Counter(0)
-
-  case class State(n: Int)
-
-  def initialState() = {
-    counter.reset
-    State(counter.get)
-  }
-
-  case object Inc extends Command {
-    def run(s: State) = counter.inc
-    def nextState(s: State) = State(s.n + 1)
-
-    preConditions += (s => true)
-
-    postConditions += ((s,r,u) => counter.get == s.n + 1)
-  }
-
-  case object Dec extends Command {
-    def run(s: State) = counter.dec
-    def nextState(s: State) = State(s.n - 1)
-    postConditions += ((s,r,u) => counter.get == s.n - 1)
-  }
-
-  def genCommand(s: State): Gen[Command] = Gen.oneOf(Inc, Dec)
-
-}
-class Counter(private var n: Int) {
-  def inc = n += 1
-  def dec = if (n > 3) n else n -= 1
-  def get = n
-  def reset = n = 0
 }

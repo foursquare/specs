@@ -17,13 +17,14 @@
  * DEALINGS IN THE SOFTWARE.
  */
 package org.specs.matcher
-import org.scalacheck.{Gen, Prop, Arg, Test, Arbitrary, Shrink}
-import org.scalacheck.util.StdRand
+
+import org.scalacheck.{Gen, Prop, Test, Arbitrary, Shrink}
+import org.scalacheck.Prop.Arg
 import org.scalacheck.Prop._
-import org.scalacheck.Test.{Status, Params, Proved, Passed, Failed, Exhausted, GenException, PropException, Result}
-import org.scalacheck.Pretty._
-import org.scalacheck.Pretty
-import org.scalacheck.ConsoleReporter._
+import org.scalacheck.Test.{Status, Parameters => TestParameters, Proved, Passed, Failed, Exhausted, PropException, Result}
+import org.scalacheck.util.Pretty._
+import org.scalacheck.util.Pretty
+import org.scalacheck.util.ConsoleReporter._
 import scala.collection.Map
 import org.specs.io.ConsoleOutput
 import org.specs.matcher._
@@ -139,14 +140,22 @@ trait ScalaCheckMatchers extends ConsoleOutput with ScalaCheckFunctions with Sca
     * and indicates if the generation should be verbose or not
     */
    private [matcher] def checkProperty(prop: Prop)(p: Parameters) = {
-     checkScalaCheckProperty(prop)(Params(p(minTestsOk), p(maxDiscarded), p(minSize), p(maxSize), StdRand, p(workers)), p.verbose)
+     checkScalaCheckProperty(prop)(
+      TestParameters.default
+        .withMinSuccessfulTests(p(minTestsOk))
+        .withMaxDiscardRatio(p(maxDiscarded))
+        .withMinSize(p(minSize))
+        .withMaxSize(p(maxSize))
+        .withWorkers(p(workers)),
+      p.verbose
+    )
    }
 
   /**
    * checks if the property is true for each generated value, and with the specified
    * scalacheck parameters. If verbose is true, then print the results on the console
    */
-  private [matcher] def checkScalaCheckProperty(prop: Prop)(params: Params, verbose: Boolean) = {
+  private [matcher] def checkScalaCheckProperty(prop: Prop)(params: TestParameters, verbose: Boolean) = {
      // will print the result of each test if verbose = true
     // will print the result of each test if verbose = true
     val callback = new Test.TestCallback {
@@ -174,7 +183,6 @@ trait ScalaCheckMatchers extends ConsoleOutput with ScalaCheckFunctions with Sca
      results match {
        case Result(Proved(as), succeeded, discarded, _, _) => (true,  noCounterExample(succeeded), "A counter-example was found " + afterNTries(succeeded))
        case Result(Passed, succeeded, discarded, _, _) => (true,  noCounterExample(succeeded), "A counter-example was found " + afterNTries(succeeded))
-       case r@Result(GenException(e), n, _, _, _) => (false, noCounterExample(n), prettyTestRes(r)(defaultPrettyParams))
        case r@Result(Exhausted, n, _, _, _)     => (false, noCounterExample(n), prettyTestRes(r)(defaultPrettyParams))
        case Result(Failed(args, labels), n, _, _, _) =>
          (false, noCounterExample(n), "A counter-example is "+counterExample(args)+" (" + afterNTries(n) + afterNShrinks(args) + ")" + failedLabels(labels))
@@ -200,6 +208,7 @@ trait ScalaCheckMatchers extends ConsoleOutput with ScalaCheckFunctions with Sca
       }.mkString(" - shrinked (", ",", ")")
    }
 
+
    private [matcher] def counterExample(args: List[Arg[_]]) = {
      if (args.size == 1)
        args.map(a => if (a.arg == null) "null" else a.arg.toString).mkString("'", "", "'")
@@ -220,7 +229,7 @@ trait ScalaCheckMatchers extends ConsoleOutput with ScalaCheckFunctions with Sca
  * This trait is used to facilitate testing by mocking ScalaCheck functionalities
  */
 trait ScalaCheckFunctions {
-  def checkProp(params: Params, prop: Prop, callback: Test.TestCallback) = Test.check(params.copy(testCallback = callback), prop)
+  def checkProp(params: TestParameters, prop: Prop, callback: Test.TestCallback) = Test.check(params.withTestCallback(callback), prop)
   def forAllProp[A,P](g: Gen[A])(f: A => Prop): Prop = Prop.forAll(g)(f)
 }
 /**

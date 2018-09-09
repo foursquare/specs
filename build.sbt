@@ -2,9 +2,9 @@ name := "specs"
 
 organization := "org.scala-tools.testing"
 
-version := "1.6.11"
+version := "1.6.11-fs1"
 
-scalaVersion := "2.11.0"
+scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(
   "junit" % "junit" % "4.7" % "optional",
@@ -14,28 +14,23 @@ libraryDependencies ++= Seq(
   "org.scala-tools.testing" % "test-interface" % "0.5" % "optional",
   "org.easymock" % "easymock" % "2.5.1" % "optional",
   "org.easymock" % "easymockclassextension" % "2.4" % "optional",
-  "org.scalacheck" % "scalacheck_2.11" % "1.10.1" % "optional",
+  "org.scalacheck" % "scalacheck_2.11" % "1.14.0" % "optional",
   "org.jmock" % "jmock" % "2.5.1" % "optional",
   "org.jmock" % "jmock-legacy" % "2.5.1" % "optional",
-  "org.mockito" % "mockito-all" % "1.8.5" % "optional",
+  "org.mockito" % "mockito-all" % "1.9.5" % "optional",
   "cglib" % "cglib" % "2.1_3" % "optional",
   "org.objenesis" % "objenesis" % "1.0" % "optional",
-  "org.scala-lang" % "scala-compiler" % "2.11.0" % "optional")
+  "org.scala-lang" % "scala-compiler" % "2.11.8" % "optional",
+  "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.5" % "optional")
+
 
 testOptions := Seq(Tests.Filter(s => s.endsWith("Spec")))
 
-resolvers ++= Seq(
-    "Sonatype-releases" at "http://oss.sonatype.org/content/repositories/releases",
-    "Sonatype-snapshots" at "http://oss.sonatype.org/content/repositories/snapshots")
+resolvers += "Sonatype-releases" at "http://oss.sonatype.org/content/repositories/releases"
+resolvers += "Sonatype-snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
 
 /** Publishing */
 credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
-
-publishTo <<= version { v: String =>
-  val nexus = "https://oss.sonatype.org/"
-  if (v.trim.endsWith("SNAPSHOT")) Some("sonatype-snapshots" at nexus + "content/repositories/snapshots")
-  else                             Some("sonatype-staging" at nexus + "service/local/staging/deploy/maven2")
-}
 
 publishMavenStyle := true
 
